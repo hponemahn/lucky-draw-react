@@ -1,32 +1,9 @@
-import React, { Component } from 'react';
-// import Header from './components/Header';
-// import Content from './components/Content';
-import Footer from './components/Footer';
+import React, { Component } from "react";
 
-class App extends Component {
-
+export default class Content extends Component {
   render() {
     return (
       <div>
-        {/* <Header /> */}
-        <a className="menu-toggle rounded" href="!#" style={{display: "none"}}>
-          <i className="fas fa-bars"></i>
-        </a>
-        <header className="masthead d-flex align-items-center">
-          <div className="container px-4 px-lg-5 text-center">
-            <h1 className="mb-1" style={{color: "#818592", fontWeight: "900"}}>Lucky Draw</h1>
-            <br></br>
-            <br></br>
-            <br></br>
-            <h4 className="mb-5">
-              <em>This lottery managed by <strong>OxAOEEa931843690D261e9948a1F3a9861428Ca682</strong>. There are currently <strong>0</strong> people entered, competing to win <strong>0</strong> ether!</em>
-            </h4>
-            {/* <a className="btn btn-primary btn-xl" href="#about">
-              Find Out More
-            </a> */}
-          </div>
-        </header>
-        {/* <Content /> */}
         <section className="content-section bg-light" id="about">
           <div className="container px-4 px-lg-5 text-center">
             <div className="row gx-4 gx-lg-5 justify-content-center">
@@ -108,10 +85,7 @@ class App extends Component {
             </div> */}
           </div>
         </section>
-        <Footer />
       </div>
     );
   }
 }
-
-export default App;
