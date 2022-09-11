@@ -1,25 +1,96 @@
-import React, { Component } from 'react';
+import React, { Component } from "react";
 // import Header from './components/Header';
 // import Content from './components/Content';
-import Footer from './components/Footer';
+import Footer from "./components/Footer";
+import web3 from "./web3";
+import luckyDraw from "./luckyDraw";
 
 class App extends Component {
+  state = {
+    manager: "",
+    players: [],
+    balance: "",
+    value: "",
+    enterMessage: "",
+    isValidInput: true,
+    winnerMessage: "",
+  };
+
+  async componentDidMount() {
+    this.initCall();
+  }
+
+  initCall = async () => {
+    const manager = await luckyDraw.methods.manager().call();
+    const players = await luckyDraw.methods.getPlayers().call();
+    const balance = await web3.eth.getBalance(luckyDraw.options.address);
+
+    this.setState({ manager, players, balance });
+  }
+
+  onSubmit = async (e) => {
+    e.preventDefault();
+
+    if (this.state.value === "") {
+      this.setState({isValidInput: false});
+      return;
+    }
+
+    const accounts = await web3.eth.getAccounts();
+
+    this.setState({ enterMessage: "Waiting on the transaction success...." });
+
+    await luckyDraw.methods.enter().send({
+      from: accounts[0],
+      value: web3.utils.toWei(this.state.value, 'ether')
+    });
+
+    this.setState({ enterMessage: "You have been entered." });
+
+    this.initCall();
+  };
+
+  onPickAWinner = async () => {
+    const accounts = await web3.eth.getAccounts();
+
+    this.setState({winnerMessage: "Waiting on the transaction success...."});
+
+    await luckyDraw.methods.pickWinner().send({
+      from: accounts[0]
+    });
+
+    this.setState({winnerMessage: "A winner have been picked"});
+
+    this.initCall();
+  }
 
   render() {
     return (
       <div>
         {/* <Header /> */}
-        <a className="menu-toggle rounded" href="!#" style={{display: "none"}}>
+        <a
+          className="menu-toggle rounded"
+          href="!#"
+          style={{ display: "none" }}
+        >
           <i className="fas fa-bars"></i>
         </a>
         <header className="masthead d-flex align-items-center">
           <div className="container px-4 px-lg-5 text-center">
-            <h1 className="mb-1" style={{color: "#818592", fontWeight: "900"}}>Lucky Draw</h1>
+            <h1
+              className="mb-1"
+              style={{ color: "#818592", fontWeight: "900" }}
+            >
+              Lucky Draw
+            </h1>
             <br></br>
             <br></br>
             <br></br>
             <h4 className="mb-5">
-              <em>This lottery managed by <strong>OxAOEEa931843690D261e9948a1F3a9861428Ca682</strong>. There are currently <strong>0</strong> people entered, competing to win <strong>0</strong> ether!</em>
+              <em>
+                This lucky draw managed by <strong>{this.state.manager}</strong>.
+                There are currently <strong>{this.state.players.length}</strong> people entered, competing to win <strong>{web3.utils.fromWei(this.state.balance, 'ether')}</strong> ether!
+              </em>
             </h4>
             {/* <a className="btn btn-primary btn-xl" href="#about">
               Find Out More
@@ -32,18 +103,34 @@ class App extends Component {
             <div className="row gx-4 gx-lg-5 justify-content-center">
               <div className="col-lg-10">
                 <h2>Want to try your luck?</h2>
-                <p className="lead mb-5">
+                <form onSubmit={this.onSubmit}>
+
+                  <div className="lead mb-5">
                     <input
-                      type="text"
-                      className="form-control"
+                      type="number"
+                      className={`form-control ${!this.state.isValidInput ? "is-invalid" : "" }`}
+                      id="validationServer03"
+                      aria-describedby="validationServer03Feedback"
+                      value={this.state.value}
+                      onChange={(event) =>
+                        this.setState({ value: event.target.value })
+                      }
                       placeholder="Amount to ether to enter"
-                      style={{width: "50%",
-                        margin: "0 auto"}}
+                      style={{ width: "50%", margin: "0 auto" }}
                     />
-                </p>
-                <a className="btn btn-dark btn-xl" href="#services">
-                  Enter
-                </a>
+                    <div
+                      id="validationServer03Feedback"
+                      className="invalid-feedback"
+                    >
+                      Please provide amount.
+                    </div>
+                  </div>
+
+                  <h3 className="mb-5" style={{ color: "orange" }}>
+                    <em>{this.state.enterMessage}</em>
+                  </h3>
+                  <button className="btn btn-dark btn-xl">Enter</button>
+                </form>
               </div>
             </div>
           </div>
@@ -55,57 +142,14 @@ class App extends Component {
           <div className="container px-4 px-lg-5">
             <div className="content-section-heading">
               {/* <h3 className="text-secondary mb-0">Services</h3> */}
-              {/* <h2 className="mb-5">Pick a winner</h2> */}
-              <a className="btn btn-xl btn-dark" href="#!">
-              Pick a winner
-            </a>
+              <h2 className="mb-5">Pick a winner</h2>
+              <h3 className="mb-5" style={{ color: "orange" }}>
+                <em>{this.state.winnerMessage}</em>
+              </h3>
+              <a onClick={this.onPickAWinner} className="btn btn-xl btn-dark" href="#!">
+                Pick a winner
+              </a>
             </div>
-            {/* <div className="row gx-4 gx-lg-5">
-              <div className="col-lg-3 col-md-6 mb-5 mb-lg-0">
-                <span className="service-icon rounded-circle mx-auto mb-3">
-                  <i className="icon-screen-smartphone"></i>
-                </span>
-                <h4>
-                  <strong>Responsive</strong>
-                </h4>
-                <p className="text-faded mb-0">
-                  Looks great on any screen size!
-                </p>
-              </div>
-              <div className="col-lg-3 col-md-6 mb-5 mb-lg-0">
-                <span className="service-icon rounded-circle mx-auto mb-3">
-                  <i className="icon-pencil"></i>
-                </span>
-                <h4>
-                  <strong>Redesigned</strong>
-                </h4>
-                <p className="text-faded mb-0">
-                  Freshly redesigned for Bootstrap 5.
-                </p>
-              </div>
-              <div className="col-lg-3 col-md-6 mb-5 mb-md-0">
-                <span className="service-icon rounded-circle mx-auto mb-3">
-                  <i className="icon-like"></i>
-                </span>
-                <h4>
-                  <strong>Favorited</strong>
-                </h4>
-                <p className="text-faded mb-0">
-                  Millions of users
-                  <i className="fas fa-heart"></i>
-                  Start Bootstrap!
-                </p>
-              </div>
-              <div className="col-lg-3 col-md-6">
-                <span className="service-icon rounded-circle mx-auto mb-3">
-                  <i className="icon-mustache"></i>
-                </span>
-                <h4>
-                  <strong>Question</strong>
-                </h4>
-                <p className="text-faded mb-0">I mustache you a question...</p>
-              </div>
-            </div> */}
           </div>
         </section>
         <Footer />
